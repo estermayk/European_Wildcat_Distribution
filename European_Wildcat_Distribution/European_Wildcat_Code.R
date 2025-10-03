@@ -28,3 +28,15 @@ occ <- occdata1[!dups, ]
 output_dir <- "C:/Users/kirby/Documents/European_Wildcat_Distribution/practical1_climdata"
 bio_glob<-worldclim_global(var="bio", res=10,path=output_dir, version="2.1")
 dim(bio_glob)
+summary(occ$lon)
+summary(occ$lat)
+#creating a lon/lat crop to just the area of interest
+e <- ext(-25, 90, -40, 60)
+#shortening predictor names (11th-16th characters)
+predictors <- crop(bio_glob, e)
+names(predictors)<-substring(names(predictors),11,16)
+#looking at climate data - first 9 predictors
+plot(predictors,1:9)
+#and now plotting species data on top for first variable
+plot(predictors,1)
+points(occ$lon,occ$lat, col='orange',pch=16,cex=0.2)
