@@ -40,3 +40,23 @@ plot(predictors,1:9)
 #and now plotting species data on top for first variable
 plot(predictors,1)
 points(occ$lon,occ$lat, col='orange',pch=16,cex=0.2)
+#sampling background data from region of interest (e)
+bg<-spatSample(predictors,5000,"random", na.rm=TRUE, as.points=TRUE,ext=e)
+#now plotting with worldclim data for bio_1
+plot(predictors, 1)
+points(bg, cex=0.1)
+#now matching climate and occurrence data
+occlatlon<-cbind(occ$lon,occ$lat)
+presvals <- extract(predictors, occlatlon)
+#presvals is the climate data for where the species is present
+backvals <- values(bg)
+#backvals is the climate data for the background data
+bg_lonlat<-geom(bg)
+lonlats<-rbind(occlatlon, bg_lonlat[,c("x","y")])
+pb <- c(rep(1, nrow(presvals)), rep(0, nrow(backvals)))
+#The first column of pb  is a vector of 1s for presences and 0s for background data.
+sdmdata <- data.frame(cbind(lonlats,pb, rbind(presvals, backvals)))
+#here we combine the presence and background data into a single data frame
+sdmdata
+pairs(sdmdata[,4:7], cex=0.1)
+#just checking for correlation between climate variables - in a real study we would look for highly correlated ones and remove as these can cause issues
