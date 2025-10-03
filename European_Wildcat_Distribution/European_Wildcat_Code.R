@@ -60,3 +60,27 @@ sdmdata <- data.frame(cbind(lonlats,pb, rbind(presvals, backvals)))
 sdmdata
 pairs(sdmdata[,4:7], cex=0.1)
 #just checking for correlation between climate variables - in a real study we would look for highly correlated ones and remove as these can cause issues
+#now fitting a species distribution model
+sdmdata<-subset(sdmdata,is.na(bio_1)==F)
+#here we're just removing a couple of rows where the climate data are NAs.
+specdata<-as.data.frame(cbind(rep("Felis silvestris",length(sdmdata[,1])),
+                              sdmdata))
+names(specdata)[1:4]<-c("species","longitude","latitude","presabs")
+specdata<-subset(specdata,presabs==1)
+backdata<-as.data.frame(cbind(rep("background",length(sdmdata[,1])),
+                              sdmdata))
+names(backdata)[1:4]<-c("","longitude","latitude","presabs")
+backdata<-subset(backdata,presabs==0)
+write.table(specdata[,-4],paste(output_dir,"/Felissilvestris_swd.csv",sep=""),col.names=T,row.names=F,sep=",")
+write.table(backdata[,-4],paste(output_dir,"/background.csv",sep=""),col.names=T,row.names=F,sep=",")
+model<-MaxEnt(sdmdata[,-c(1:3)],sdmdata[,3],removeDuplicates=TRUE)
+model
+#partialResponse function - looks at likelihood of occurrence gradient with climatic variables
+plot(model)
+#biggest predictor by over 20% is BIO19 = Precipitation of Coldest Quarter
+#now looking at predicted climate suitability and where it matches recording
+predictedocc <- predict(model, predictors, args=c("outputformat=raw")) 
+par(mfrow=c(2,1))
+plot(predictedocc)
+plot(predictedocc)
+points(occlatlon,pch=".")
