@@ -84,3 +84,17 @@ par(mfrow=c(2,1))
 plot(predictedocc)
 plot(predictedocc)
 points(occlatlon,pch=".")
+#to predict future distributions we need future climate data
+bio_fut<-cmip6_world(model='ACCESS-ESM1-5', ssp='245', time='2041-2060', var='bioc', res=10, path=output_dir)
+fut_predictors<-crop(bio_fut,e)
+
+plot(predictors,2)
+plot(fut_predictors,2)
+
+names(fut_predictors)<-names(predictors)
+fut_predictedocc <- predict(model, fut_predictors, args=c("outputformat=raw")) 
+
+par(mfrow=c(2,1))
+plot(predictedocc,main="current")
+
+plot(fut_predictedocc,main="2050")
